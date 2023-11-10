@@ -1,21 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ListDesign from '../../helpers/ListDesign';
 // import './customerList.module.css';
 import Siderbar from '../../helpers/siderbar';
 import withAuth from '@/customhook/withAuth';
+import axios from 'axios';
+import { authHeader } from '@/helpers/Header';
 
-const tableData = [
-    {
-        item_code: "003",
-        item_name: "Peanut Butter",
-        supplier_price: 950.0,
-        last_sale_price: 1050.0,
-        actual_qty: 251.0,
-    },
-    // Add more items if needed
-];
+// const tableData = [
+//     {
+//         item_code: "003",
+//         item_name: "Peanut Butter",
+//         supplier_price: 950.0,
+//         last_sale_price: 1050.0,
+//         actual_qty: 251.0,
+//     },
+//     // Add more items if needed
+// ];
 
 const ItemList = () => {
+
+    const [tableData, setTableData] = useState([])
+    async function fetchCsList() {
+        try {
+            const res = await axios.get('https://tgc67.online/api/resource/Customer', authHeader)
+            setTableData(res.data.data)
+            console.log(res.data)
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+    useEffect(() => {
+        fetchCsList()
+    }, [])
+
     return (
         <div>
             <Siderbar />
@@ -38,7 +57,7 @@ const ItemList = () => {
 export default withAuth(ItemList);
 
 
-const DataTable = () => {
+const DataTable = ({ tableData }) => {
     return (
         <>
             <div className="container">
@@ -74,12 +93,13 @@ const DataTable = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="table__tbody">
-                                    <TableDataList name="Christin Ericssen" />
-                                    <TableDataList name="aa" />
-                                    <TableDataList name="bb" />
-                                    <TableDataList name="cc" />
-                                    <TableDataList name="dd" />
-                                    <TableDataList name="ee" />
+                                    {
+                                        tableData.length > 0 && tableData.map((list) => {
+                                            return (
+                                                <TableDataList name={list.name} />
+                                            )
+                                        })
+                                    }
                                 </tbody>
                             </table>
                             <Pagination />
